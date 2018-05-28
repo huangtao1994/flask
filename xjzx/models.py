@@ -39,12 +39,14 @@ class NewsInfo(db.Model, BaseMode):
 
 
 tb_user_follow = db.Table(
+    # 用户收藏新闻关系表
     'tb_user_follow',
     db.Column('origin_user_id', db.Integer, db.ForeignKey('user_info.id'), primary_key=True),
     db.Column('follow_user_id', db.Integer, db.ForeignKey('user_info.id'), primary_key=True),
 
 )
 tb_user_collect = db.Table(
+    # 用户关注用户关系表
     'tb_news_collect',
     db.Column('user_id', db.Integer, db.ForeignKey('user_info.id'), primary_key=True),
     db.Column('news_id', db.Integer, db.ForeignKey('news_info.id'), primary_key=True)
@@ -53,6 +55,7 @@ tb_user_collect = db.Table(
 
 
 class UserInfo(db.Model, BaseMode):
+    # 用户表
     __tablename__ = 'user_info'
     id = db.Column(db.Integer, primary_key=True)
     avatar = db.Column(db.String(50), default='user_pic.png')
@@ -91,6 +94,7 @@ class UserInfo(db.Model, BaseMode):
 
 
 class NewsComment(db.Model, BaseMode):
+    # 评论
     __tablename__ = 'news_comment'
     id = db.Column(db.Integer, primary_key=True)
     news_id = db.Column(db.Integer, db.ForeignKey('news_info.id'))
