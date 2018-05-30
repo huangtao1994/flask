@@ -1,4 +1,4 @@
-from flask import Blueprint, make_response, request, jsonify
+from flask import Blueprint, make_response, request, jsonify, render_template, redirect
 from flask import current_app
 from flask import session
 from utils.captcha.captcha import captcha
@@ -6,12 +6,15 @@ import random
 import re
 from models import db, UserInfo
 from utils.ytx_sdk.ytx_send import sendTemplateSMS
+import functools
+from utils.qiniu_xjzx import upload_pic
 
 user_blueprint = Blueprint('user', __name__, url_prefix='/user')
 
 
 @user_blueprint.route('/image_yzm')
 def image_yzm():
+    # captcha.generate_captcha()为第三方包utils.captcha中的方法
     name, yzm, image = captcha.generate_captcha()
     # yzm表示随机生成的验证码字符串
     # 将数据进行保存，方便方面对比
@@ -118,3 +121,95 @@ def logout():
     # 退出登录
     del session['user_id']
     return jsonify(result=1)
+
+
+def login_required(view_fun):
+    @functools.wraps(view_fun)
+    def fun2(*args, **kwargs):
+        if 'user_id' not in session:
+            return redirect('/')
+        return view_fun(*args, **kwargs)
+
+    return fun2
+
+
+@user_blueprint.route('/')
+@login_required
+def index():
+    user_id = session['user_id']
+    user = UserInfo.query.get(user_id)
+    return render_template('news/user.html', user=user)
+
+
+@user_blueprint.route('/base', methods=['GET', 'POST'])
+@login_required
+def base():
+    user_id = session['user_id']
+    user = UserInfo.query.get(user_id)
+    if request.method == 'GET':
+        return render_template('news/user_base_info.html', user=user)
+    elif request.method == 'POST':
+        # 接收数据
+        dict1 = request.form
+        nick_name = dict1.get('nick_name')
+        signature = dict1.get('signature')
+        gender = dict1.get('gender')
+        print(nick_name)
+        # 查询数据为属性赋值
+        user.nick_name = nick_name
+        user.signature = signature
+        user.gender = bool(gender)
+        # 提交到数据库
+        db.session.commit()
+        return jsonify(result=1)
+
+
+@user_blueprint.route('/pic',methods=['GET','POST'])
+@login_required
+def pic():
+    user_id = session['user_id']
+    user = UserInfo.query.get(user_id)
+    if request.method == 'GET':
+        return render_template('news/user_pic_info.html',user=user)
+    elif request.method == 'POST':
+        # 接收文件
+        avatar = request.files.get('avatar')
+        # 上传到七牛云,并返回文件名
+        filename = upload_pic(avatar)
+        # 修改用户的头像属性
+        user.avatar = filename
+        # 提交到数据库
+        db.session.commit()
+
+        # 返回响应
+        return jsonify(result=1)
+
+
+@user_blueprint.route('/follow')
+@login_required
+def follow():
+    return render_template('news/user_follow.html')
+
+
+@user_blueprint.route('/pwd')
+@login_required
+def pwd():
+    return render_template('news/user_pass_info.html')
+
+
+@user_blueprint.route('/collect')
+@login_required
+def collect():
+    return render_template('news/user_collection.html')
+
+
+@user_blueprint.route('/release')
+@login_required
+def release():
+    return render_template('news/user_news_release.html')
+
+
+@user_blueprint.route('/news_list')
+@login_required
+def news_list():
+    return render_template('news/user_news_list.html')

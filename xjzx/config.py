@@ -4,6 +4,7 @@ import os
 
 class Config(object):
     DEBUG = False
+    # mysql配置
     SQLALCHEMY_DATABASE_URI = 'mysql://root:mysql@localhost:3306/xjzx'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     # redis配置
@@ -21,7 +22,18 @@ class Config(object):
     # os.path.abspath()==>获取文件的绝对路径，/home/python/Desktop/sz10_flask/xjzx/config.py
     # os.path.dirname()==>获取路径的目录名，/home/python/Desktop/sz10_flask/xjzx
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
+    # 七牛云配置
+    QINIU_AK = 'H999S3riCJGPiJOity1GsyWufw3IyoMB6goojo5e'
+    QINIU_SK = 'uOZfRdFtljIw7b8jr6iTG-cC6wY_-N19466PXUAb'
+    QINIU_BUCKET = 'itcast20171104'
+    QINIU_URL = 'http://oyvzbpqij.bkt.clouddn.com/'
 
 class DevelopConfig(Config):
     DEBUG = True
+
+
+class Config(object):
+    DEBUG = False
+    SQLALCHEMY_DATABASE_URI = 'mysql://root:mysql@localhost:3306/xjzx'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    REDIS_HOST = 'localhost'

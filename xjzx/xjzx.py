@@ -8,6 +8,7 @@ app = create_app(DevelopConfig)
 manager = Manager(app)
 db.init_app(app)
 
+# 添加迁移命令
 Migrate(app, db)
 manager.add_command('db', MigrateCommand)
 

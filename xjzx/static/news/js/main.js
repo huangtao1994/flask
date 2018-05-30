@@ -36,12 +36,12 @@ $(function(){
 	$('.form_group').on('click focusin',function(){
 		$(this).children('.input_tip').animate({'top':-5,'font-size':12},'fast').siblings('input').focus().parent().addClass('hotline');
 	})
-    $('.form-group input').focus(
-        function(){
-            $(this).parent().addClass('hotline')
-            return false
-        }
-    )
+    // $('.form-group input').focus(
+    //     function(){
+    //         $(this).parent().addClass('hotline')
+    //         return false
+    //     }
+    // )
 
 	// 输入框失去焦点，如果输入框为空，则提示文字下移
 	$('.form_group input').on('blur focusout',function(){
@@ -205,14 +205,23 @@ $(function(){
 
     })
 
+    $('#nick_name').click(function () {
+        if(location.pathname=='/'){
+            location.href='/user/';
+        }
+    })
     //退出的点击事件
     $('#logout').click(function () {
         $.post('/user/logout',{
             'csrf_token':$('#csrf_token').val()
         },function (data) {
             if(data.result==1){
-                $('.user_btns').show();
-                $('.user_login').hide();
+                if(location.pathname=='/user/'){
+                    location.href='/';
+                }else {
+                    $('.user_btns').show();
+                    $('.user_login').hide();
+                }
             }
         });
     });
